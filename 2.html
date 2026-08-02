@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>ethereal — авиапутешествия</title>
+    <style>
+        /* ---------- общие сбросы ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f2eb;
+            color: #2b2b28;
+            line-height: 1.5;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* ---------- фоновые облака (с более тёплым оттенком) ---------- */
+        .clouds-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 230, 210, 0.6);
+            border-radius: 80% 20% 70% 30% / 60% 50% 50% 40%;
+            filter: blur(40px);
+            opacity: 0.4;
+            animation: floatCloud 28s infinite alternate ease-in-out;
+            will-change: transform;
+        }
+
+        .cloud1 { width: 500px; height: 200px; top: 5%; left: -10%; animation-duration: 30s; }
+        .cloud2 { width: 450px; height: 180px; top: 55%; left: 65%; animation-duration: 34s; animation-delay: -4s; }
+        .cloud3 { width: 600px; height: 240px; top: 25%; left: 35%; animation-duration: 40s; animation-delay: -8s; opacity: 0.3; }
+        .cloud4 { width: 400px; height: 160px; top: 80%; left: 5%; animation-duration: 27s; animation-delay: -6s; }
+
+        @keyframes floatCloud {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(6%, -4%) scale(1.03); }
+        }
+
+        /* ---------- контейнер ---------- */
+        .site-wrapper {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem 1.2rem 2rem;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ---------- навигация ---------- */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: clamp(1.3rem, 4vw, 1.8rem);
+            font-weight: 200;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: #3a3a35;
+        }
+
+        .logo span {
+            font-weight: 400;
+            color: #b7a287;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: clamp(1rem, 3vw, 2.5rem);
+            font-size: clamp(0.7rem, 2vw, 0.9rem);
+            font-weight: 350;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #5e5e55;
+            flex-wrap: wrap;
+        }
+
+        .nav-links span {
+            cursor: pointer;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-links span::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0%;
+            height: 1.5px;
+            background: #b7a287;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links span:hover {
+            color: #2b2b28;
+        }
+        .nav-links span:hover::after {
+            width: 100%;
+        }
+
+        .nav-icon {
+            font-size: 1.1rem;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+        .nav-icon:hover {
+            opacity: 1;
+        }
+
+        /* ---------- hero ---------- */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin: 0.5rem 0 2rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2.8rem, 9vw, 6.5rem);
+            font-weight: 200;
+            line-height: 1.1;
+            color: #2c2c26;
+            margin-bottom: 0.6rem;
+            opacity: 0;
+            animation: fadeInUp 0.9s ease forwards;
+        }
+
+        .hero-title .highlight {
+            font-weight: 350;
+            color: #b7a287;
+        }
+
+        .hero-sub {
+            font-size: clamp(1rem, 3vw, 1.3rem);
+            font-weight: 300;
+            color: #6b6b5e;
+            max-width: 520px;
+            margin-bottom: 1.8rem;
+            opacity: 0;
+            animation: fadeInUp 0.9s 0.2s ease forwards;
+        }
+
+        .paper-plane {
+            display: inline-block;
+            font-size: clamp(2.5rem, 6vw, 3.8rem);
+            animation: gentleFly 4s infinite alternate ease-in-out;
+            filter: drop-shadow(0 8px 12px rgba(0,0,0,0.04));
+        }
+
+        @keyframes gentleFly {
+            0% { transform: translate(0,0) rotate(-3deg); }
+            100% { transform: translate(10px,-14px) rotate(5deg); }
+        }
+
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ---------- форма поиска (другой вид) ---------- */
+        .search-form {
+            width: 100%;
+            max-width: 750px;
+            margin: 0.5rem 0 0;
+        }
+
+        .search-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 60px;
+            padding: 0.4rem 0.4rem 0.4rem 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        }
+
+        .search-row input {
+            flex: 1 1 110px;
+            background: transparent;
+            border: none;
+            padding: 0.7rem 0.2rem;
+            font-family: inherit;
+            font-size: 0.9rem;
+            color: #2b2b28;
+            outline: none;
+        }
+
+        .search-row input::placeholder {
+            color: #a0a090;
+            font-weight: 300;
+        }
+
+        .search-row input[type="date"] {
+            flex: 0 1 140px;
+            min-width: 120px;
+        }
+
+        .search-row button {
+            background: #b7a287;
+            color: #f5f2eb;
+            border: none;
+            padding: 0.6rem 2.2rem;
+            border-radius: 60px;
+            font-weight: 450;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            white-space: nowrap;
+        }
+
+        .search-row button:hover {
+            background: #a08a75;
+            transform: scale(1.02);
+        }
+
+        /* ---------- карточки направлений (новые города и контент) ---------- */
+        .destinations {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0 2.5rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 28px;
+            padding: 1.6rem;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.02), 0 5px 15px rgba(0,0,0,0.03);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: cardRise 0.8s ease forwards;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:nth-child(1) { animation-delay: 0s; }
+        .card:nth-child(2) { animation-delay: 0.1s; }
+        .card:nth-child(3) { animation-delay: 0.2s; }
+        .card:nth-child(4) { animation-delay: 0.3s; }
+
+        @keyframes cardRise {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 30px 50px rgba(0,0,0,0.05), 0 10px 25px rgba(0,0,0,0.04);
+            border-color: rgba(210,190,160,0.4);
+        }
+
+        .city {
+            font-size: clamp(1.6rem, 4vw, 2.2rem);
+            font-weight: 250;
+            letter-spacing: -0.02em;
+            color: #35352d;
+        }
+
+        .country {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #9b9b8a;
+            margin-bottom: 0.5rem;
+        }
+
+        .card .weather {
+            font-size: 0.85rem;
+            color: #7a7a6a;
+            margin: 0.2rem 0 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .flight-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 0.2rem 0 0.6rem;
+        }
+
+        .price {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #2c2c26;
+        }
+
+        .rating {
+            font-size: 0.85rem;
+            color: #7a7a6a;
+        }
+
+        .flight-line {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.8rem;
+            color: #5f5f4e;
+            margin: 0.2rem 0 0.8rem;
+        }
+
+        .line-animated {
+            height: 1px;
+            flex: 1;
+            background: linear-gradient(to right, #d4c8b8, transparent);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .line-animated::after {
+            content: '';
+            position: absolute;
+            width: 30%;
+            height: 100%;
+            background: #b7a287;
+            animation: slideLine 3s infinite alternate ease-in-out;
+        }
+
+        @keyframes slideLine {
+            0% { left: -30%; }
+            100% { left: 100%; }
+        }
+
+        .book-btn {
+            background: transparent;
+            border: 1.5px solid #d4c8b8;
+            border-radius: 40px;
+            padding: 0.5rem 0;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 400;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #4a4a40;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: auto;
+            width: 100%;
+        }
+
+        .book-btn:hover {
+            background: #2b2b28;
+            border-color: #2b2b28;
+            color: #f5f2eb;
+        }
+
+        /* ---------- секция "Популярные рейсы" с таймером ---------- */
+        .popular-flights {
+            margin: 2rem 0 2.5rem;
+            padding: 1.5rem 0;
+            border-top: 1px solid rgba(0,0,0,0.06);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .section-title {
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            font-weight: 250;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.01em;
+            color: #3a3a35;
+        }
+
+        .flight-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .flight-item {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 1rem 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .flight-item:hover {
+            background: rgba(255, 255, 255, 0.7);
+            transform: translateY(-3px);
+        }
+
+        .flight-route {
+            font-weight: 450;
+            font-size: 1.1rem;
+            color: #2c2c26;
+        }
+
+        .flight-time {
+            font-size: 0.85rem;
+            color: #7a7a6a;
+            margin: 0.3rem 0;
+        }
+
+        .flight-countdown {
+            font-size: 0.9rem;
+            font-weight: 450;
+            color: #b7a287;
+            margin-top: 0.3rem;
+        }
+
+        /* ---------- отзывы (новая секция) ---------- */
+        .reviews {
+            margin: 2rem 0 2.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .review-card {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .review-card:hover {
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .review-text {
+            font-style: italic;
+            font-weight: 300;
+            color: #3a3a35;
+            font-size: 0.95rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .review-author {
+            font-size: 0.8rem;
+            color: #8f8f7e;
+            letter-spacing: 0.03em;
+        }
+
+        .review-stars {
+            color: #d4a373;
+            letter-spacing: 0.1em;
+            font-size: 0.9rem;
+        }
+
+        /* ---------- преимущества (другой текст) ---------- */
+        .advantages {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0 2rem;
+            padding: 1.5rem 0;
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .advantage-item {
+            text-align: center;
+        }
+
+        .advantage-icon {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 0.3rem;
+            opacity: 0.7;
+        }
+
+        .advantage-title {
+            font-weight: 450;
+            font-size: 1rem;
+            color: #3a3a35;
+        }
+
+        .advantage-desc {
+            font-size: 0.85rem;
+            color: #7a7a6a;
+            font-weight: 300;
+        }
+
+        /* ---------- футер (другой текст) ---------- */
+        .footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            font-size: 0.75rem;
+            color: #8f8f7e;
+            letter-spacing: 0.05em;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-left {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .footer-left span {
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .footer-left span:hover {
+            color: #4a4940;
+        }
+
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .subscribe-form {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .subscribe-form input {
+            background: rgba(255,255,255,0.5);
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 40px;
+            padding: 0.4rem 1rem;
+            font-size: 0.75rem;
+            outline: none;
+            max-width: 160px;
+            transition: border 0.3s;
+            font-family: inherit;
+        }
+
+        .subscribe-form input:focus {
+            border-color: #b7a287;
+        }
+
+        .subscribe-form button {
+            background: transparent;
+            border: 1px solid #b7a287;
+            border-radius: 40px;
+            padding: 0.3rem 1.2rem;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #4a4a40;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .subscribe-form button:hover {
+            background: #b7a287;
+            color: #f5f2eb;
+            border-color: #b7a287;
+        }
+
+        /* ---------- адаптив ---------- */
+        @media (max-width: 600px) {
+            .navbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.8rem;
+            }
+            .search-row {
+                border-radius: 30px;
+                padding: 0.8rem 0.8rem 0.8rem 1rem;
+                flex-direction: column;
+                background: rgba(255,255,255,0.7);
+            }
+            .search-row input {
+                width: 100%;
+                padding: 0.6rem 0;
+                border-bottom: 1px solid rgba(0,0,0,0.05);
+            }
+            .search-row input[type="date"] {
+                flex: 1 1 auto;
+            }
+            .search-row button {
+                width: 100%;
+                padding: 0.7rem;
+                margin-top: 0.2rem;
+            }
+            .destinations {
+                grid-template-columns: 1fr;
+            }
+            .flight-list {
+                grid-template-columns: 1fr 1fr;
+            }
+            .reviews {
+                grid-template-columns: 1fr;
+            }
+            .advantages {
+                grid-template-columns: 1fr 1fr;
+            }
+            .footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.8rem;
+            }
+            .footer-right {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+            .subscribe-form {
+                width: 100%;
+            }
+            .subscribe-form input {
+                flex: 1;
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .flight-list {
+                grid-template-columns: 1fr;
+            }
+            .advantages {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- облака -->
+    <div class="clouds-bg">
+        <div class="cloud cloud1"></div>
+        <div class="cloud cloud2"></div>
+        <div class="cloud cloud3"></div>
+        <div class="cloud cloud4"></div>
+    </div>
+
+    <div class="site-wrapper">
+        <!-- навигация -->
+        <nav class="navbar">
+            <div class="logo">ethereal<span>.</span></div>
+            <div class="nav-links">
+                <span>рейсы</span>
+                <span>направления</span>
+                <span>отзывы</span>
+                <span>о нас</span>
+                <span class="nav-icon">🔍</span>
+            </div>
+        </nav>
+
+        <!-- hero -->
+        <section class="hero">
+            <h1 class="hero-title">
+                Открывай <span class="highlight">новое</span><br>
+                каждый день<span class="paper-plane">✈</span>
+            </h1>
+            <p class="hero-sub">
+                Путешествия начинаются с мечты. Мы поможем ей стать реальностью — просто, комфортно и вдохновляюще.
+            </p>
+
+            <form class="search-form" id="flightSearch">
+                <div class="search-row">
+                    <input type="text" placeholder="Откуда" value="Санкт-Петербург" aria-label="Город вылета">
+                    <input type="text" placeholder="Куда" value="Лиссабон" aria-label="Город прилёта">
+                    <input type="date" value="2025-08-10" aria-label="Дата вылета">
+                    <button type="submit">Найти билет</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- карточки направлений (новые города) -->
+        <section class="destinations">
+            <div class="card">
+                <div class="city">Лиссабон</div>
+                <div class="country">Португалия</div>
+                <div class="weather">☀️ 24°C</div>
+                <div class="flight-info">
+                    <span class="price">от €320</span>
+                    <span class="rating">⭐ 9.4</span>
+                </div>
+                <div class="flight-line">
+                    <span>прямой</span>
+                    <div class="line-animated"></div>
+                    <span>5ч 10м</span>
+                </div>
+                <button class="book-btn" data-city="Лиссабон">выбрать</button>
+            </div>
+
+            <div class="card">
+                <div class="city">Киото</div>
+                <div class="country">Япония</div>
+                <div class="weather">🌸 20°C</div>
+                <div class="flight-info">
+                    <span class="price">от €890</span>
+                    <span class="rating">⭐ 9.7</span>
+                </div>
+                <div class="flight-line">
+                    <span>стыковка</span>
+                    <div class="line-animated"></div>
+                    <span>12ч 40м</span>
+                </div>
+                <button class="book-btn" data-city="Киото">выбрать</button>
+            </div>
+
+            <div class="card">
+                <div class="city">Кейптаун</div>
+                <div class="country">ЮАР</div>
+                <div class="weather">☀️ 28°C</div>
+                <div class="flight-info">
+                    <span class="price">от €740</span>
+                    <span class="rating">⭐ 9.1</span>
+                </div>
+                <div class="flight-line">
+                    <span>прямой</span>
+                    <div class="line-animated"></div>
+                    <span>10ч 15м</span>
+                </div>
+                <button class="book-btn" data-city="Кейптаун">выбрать</button>
+            </div>
+
+            <div class="card">
+                <div class="city">Мехико</div>
+                <div class="country">Мексика</div>
+                <div class="weather">🌤️ 26°C</div>
+                <div class="flight-info">
+                    <span class="price">от €680</span>
+                    <span class="rating">⭐ 8.8</span>
+                </div>
+                <div class="flight-line">
+                    <span>стыковка</span>
+                    <div class="line-animated"></div>
+                    <span>13ч 20м</span>
+                </div>
+                <button class="book-btn" data-city="Мехико">выбрать</button>
+            </div>
+        </section>
+
+        <!-- Популярные рейсы с таймером до вылета -->
+        <section class="popular-flights">
+            <h2 class="section-title">✈ ближайшие рейсы</h2>
+            <div class="flight-list" id="flightList">
+                <div class="flight-item" data-departure="2025-07-25T18:30:00">
+                    <div class="flight-route">Москва → Стамбул</div>
+                    <div class="flight-time">вылет 18:30</div>
+                    <div class="flight-countdown" id="countdown1">загрузка...</div>
+                </div>
+                <div class="flight-item" data-departure="2025-07-26T09:15:00">
+                    <div class="flight-route">Санкт-Петербург → Париж</div>
+                    <div class="flight-time">вылет 09:15</div>
+                    <div class="flight-countdown" id="countdown2">загрузка...</div>
+                </div>
+                <div class="flight-item" data-departure="2025-07-27T14:00:00">
+                    <div class="flight-route">Новосибирск → Токио</div>
+                    <div class="flight-time">вылет 14:00</div>
+                    <div class="flight-countdown" id="countdown3">загрузка...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Отзывы -->
+        <section class="reviews">
+            <div class="review-card">
+                <div class="review-stars">★★★★★</div>
+                <div class="review-text">«Лучший сервис, с которым я летал. Всё продумано до мелочей.»</div>
+                <div class="review-author">Анна, Москва</div>
+            </div>
+            <div class="review-card">
+                <div class="review-stars">★★★★☆</div>
+                <div class="review-text">«Очень понравился интерфейс бронирования и забота о пассажирах.»</div>
+                <div class="review-author">Иван, Киев</div>
+            </div>
+            <div class="review-card">
+                <div class="review-stars">★★★★★</div>
+                <div class="review-text">«ethereal — это новый уровень комфорта. Рекомендую всем!»</div>
+                <div class="review-author">Елена, Алматы</div>
+            </div>
+        </section>
+
+        <!-- Преимущества (новый текст) -->
+        <section class="advantages">
+            <div class="advantage-item">
+                <span class="advantage-icon">🧳</span>
+                <div class="advantage-title">Ручная кладь 10 кг</div>
+                <div class="advantage-desc">Бесплатно на всех рейсах</div>
+            </div>
+            <div class="advantage-item">
+                <span class="advantage-icon">🍱</span>
+                <div class="advantage-title">Блюда от шеф-повара</div>
+                <div class="advantage-desc">Меню с учётом предпочтений</div>
+            </div>
+            <div class="advantage-item">
+                <span class="advantage-icon">🎧</span>
+                <div class="advantage-title">Медиатека 500+ фильмов</div>
+                <div class="advantage-desc">Развлечения на любой вкус</div>
+            </div>
+            <div class="advantage-item">
+                <span class="advantage-icon">♻️</span>
+                <div class="advantage-title">Экологичные рейсы</div>
+                <div class="advantage-desc">Компенсируем выбросы CO₂</div>
+            </div>
+        </section>
+
+        <!-- футер -->
+        <footer class="footer">
+            <div class="footer-left">
+                <span>ethereal</span>
+                <span>Instagram</span>
+                <span>Telegram</span>
+                <span>YouTube</span>
+            </div>
+            <div class="footer-right">
+                <form class="subscribe-form" id="subscribeForm">
+                    <input type="email" placeholder="Ваш email" aria-label="Подписка на новости" required>
+                    <button type="submit">подписаться</button>
+                </form>
+                <span style="opacity:0.5;">|</span>
+                <span>2025</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. Поиск
+            document.getElementById('flightSearch').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const inputs = this.querySelectorAll('input');
+                alert(`Поиск рейсов: ${inputs[0].value} → ${inputs[1].value}, дата: ${inputs[2].value}`);
+            });
+
+            // 2. Кнопки "выбрать"
+            document.querySelectorAll('.book-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    alert(`Вы выбрали направление: ${this.dataset.city}. Спасибо!`);
+                });
+            });
+
+            // 3. Клик по карточке
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const city = this.querySelector('.city')?.textContent || '';
+                    if (city) alert(`Направление: ${city}`);
+                });
+            });
+
+            // 4. Подписка
+            document.getElementById('subscribeForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const input = this.querySelector('input[type="email"]');
+                if (input.value) {
+                    alert(`Спасибо за подписку, ${input.value}!`);
+                    input.value = '';
+                } else {
+                    alert('Введите email.');
+                }
+            });
+
+            // 5. Таймер обратного отсчёта для ближайших рейсов
+            function updateCountdowns() {
+                const items = document.querySelectorAll('.flight-item');
+                const now = new Date();
+                items.forEach((item, index) => {
+                    const departureStr = item.dataset.departure;
+                    if (!departureStr) return;
+                    const dep = new Date(departureStr);
+                    const diff = dep - now;
+                    const countdownEl = item.querySelector('.flight-countdown');
+                    if (diff <= 0) {
+                        countdownEl.textContent = 'рейс вылетел';
+                    } else {
+                        const hours = Math.floor(diff / (1000 * 60 * 60));
+                        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                        countdownEl.textContent = `осталось ${hours}ч ${minutes}м`;
+                    }
+                });
+            }
+
+            updateCountdowns();
+            setInterval(updateCountdowns, 60000); // обновлять каждую минуту
+        });
+    </script>
+</body>
+</html>

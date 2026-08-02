@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AG studio — архитектура и ландшафт</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #f4f2ed;
+      --bg-card: #ffffff;
+      --text: #1e1e1e;
+      --text-muted: #5e5e5e;
+      --accent: #b38b6d;
+      --accent-dark: #7a5f49;
+      --border: #d9d4cd;
+      --shadow: 0 8px 32px rgba(0,0,0,0.04);
+      --shadow-lg: 0 16px 48px rgba(0,0,0,0.08);
+      --radius: 12px;
+    }
+    [data-theme="dark"] {
+      --bg: #1b1917;
+      --bg-card: #262320;
+      --text: #ece7e0;
+      --text-muted: #a8a09a;
+      --accent: #c9a587;
+      --accent-dark: #b38b6d;
+      --border: #3d3732;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      transition: background 0.3s, color 0.3s;
+    }
+    ::selection { background: var(--accent); color: #fff; }
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; display: block; }
+    .container { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      padding: 18px 0;
+      background: rgba(244, 242, 237, 0.7);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid transparent;
+      transition: all 0.3s;
+    }
+    [data-theme="dark"] .header { background: rgba(27, 25, 23, 0.8); }
+    .header.scrolled { border-bottom-color: var(--border); box-shadow: var(--shadow); }
+    .header-inner {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo {
+      font-weight: 600; font-size: 1.15rem; letter-spacing: -0.02em;
+      display: flex; align-items: center; gap: 8px;
+      color: var(--text); cursor: pointer;
+    }
+    .logo-icon { font-size: 1.3rem; }
+    .logo span { color: var(--accent-dark); }
+
+    .nav { display: flex; gap: 4px; align-items: center; }
+    .nav-link {
+      padding: 8px 16px; border-radius: 40px;
+      font-size: 0.8rem; font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nav-link:hover, .nav-link.active {
+      background: var(--accent);
+      color: #fff;
+    }
+    .burger {
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; padding: 6px;
+    }
+    .burger span {
+      width: 24px; height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: 0.3s;
+    }
+    .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .burger.open span:nth-child(2) { opacity: 0; }
+    .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .header-controls { display: flex; gap: 8px; align-items: center; }
+    .ctrl-btn {
+      width: 38px; height: 38px; border-radius: 50%;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ctrl-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .user-menu { position: relative; display: flex; align-items: center; }
+    .user-name-btn {
+      padding: 6px 14px; border-radius: 40px;
+      font-weight: 500; font-size: 0.8rem;
+      background: var(--bg-card); border: 1px solid var(--border);
+      cursor: pointer; color: var(--text);
+      max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .user-dropdown {
+      position: absolute; top: calc(100% + 8px); right: 0;
+      min-width: 160px; background: var(--bg-card);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      padding: 6px; opacity: 0; visibility: hidden;
+      transform: translateY(-4px); transition: all 0.2s;
+      z-index: 100;
+    }
+    .user-menu.open .user-dropdown { opacity: 1; visibility: visible; transform: none; }
+    .user-dropdown span {
+      display: block; padding: 10px 14px; border-radius: 8px;
+      font-size: 0.85rem; cursor: pointer;
+    }
+    .user-dropdown span:hover { background: var(--accent); color: #fff; }
+
+    .page { display: none; padding-top: 80px; min-height: 100vh; animation: fade .4s ease; }
+    .page.active { display: block; }
+    @keyframes fade { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+    .hero {
+      padding: 60px 0 64px;
+      background: var(--bg);
+    }
+    .hero-grid {
+      display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px;
+      align-items: center;
+    }
+    .hero h1 {
+      font-size: clamp(2.4rem, 5.5vw, 3.6rem);
+      font-weight: 600; letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    .hero h1 em { color: var(--accent-dark); font-style: normal; }
+    .hero p {
+      font-size: 1.05rem; color: var(--text-muted);
+      max-width: 480px; margin-bottom: 32px;
+    }
+    .hero-img {
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--border);
+      aspect-ratio: 4/3;
+    }
+    .hero-img img { width: 100%; height: 100%; object-fit: cover; }
+
+    .btn {
+      display: inline-block; padding: 12px 28px;
+      border-radius: 40px; font-weight: 500; font-size: 0.85rem;
+      border: none; cursor: pointer; transition: all 0.2s;
+      background: var(--accent-dark); color: #fff;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(179, 139, 109, 0.25); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+    .section { padding: 72px 0; }
+    .section-header { margin-bottom: 48px; }
+    .section-tag {
+      display: inline-block; font-size: 0.7rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--accent-dark); margin-bottom: 8px;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 600; letter-spacing: -0.02em;
+    }
+    .section-desc { color: var(--text-muted); margin-top: 8px; max-width: 480px; }
+
+    .grid-2, .grid-3, .grid-4 {
+      display: grid; gap: 24px;
+    }
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: all 0.25s;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-4px); }
+    .card-icon { font-size: 1.8rem; margin-bottom: 14px; }
+    .card h3 { font-weight: 600; font-size: 1.1rem; margin-bottom: 8px; }
+    .card p { color: var(--text-muted); font-size: 0.9rem; }
+    .card-price { font-weight: 600; color: var(--accent-dark); margin-top: 14px; font-size: 1.1rem; }
+
+    .filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 32px; }
+    .filter-btn {
+      padding: 6px 18px; border-radius: 40px;
+      border: 1px solid var(--border);
+      background: transparent;
+      font-family: inherit; font-size: 0.75rem; font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--text); color: var(--bg); border-color: var(--text);
+    }
+
+    .gallery-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    }
+    .gallery-item {
+      border-radius: var(--radius); overflow: hidden;
+      aspect-ratio: 4/3; cursor: pointer;
+      border: 1px solid var(--border);
+      position: relative;
+      background: var(--border);
+    }
+    .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
+    .gallery-item:hover img { transform: scale(1.02); }
+    .gallery-overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.3);
+      opacity: 0; transition: 0.3s;
+      display: flex; align-items: flex-end; padding: 20px;
+      color: #fff;
+    }
+    .gallery-item:hover .gallery-overlay { opacity: 1; }
+    .gallery-overlay h3 { font-weight: 500; font-size: 1rem; }
+    .gallery-overlay p { font-size: 0.8rem; opacity: 0.8; }
+
+    .team-card { text-align: center; padding: 0; overflow: hidden; }
+    .team-card img { width: 100%; height: 220px; object-fit: cover; background: var(--border); }
+    .team-info { padding: 20px; }
+    .team-role { color: var(--accent-dark); font-weight: 500; }
+
+    .blog-card { padding: 0; overflow: hidden; }
+    .blog-card img { width: 100%; height: 180px; object-fit: cover; background: var(--border); }
+    .blog-body { padding: 20px; }
+    .blog-date { font-size: 0.75rem; color: var(--accent-dark); font-weight: 500; }
+    .blog-body h3 { margin: 8px 0; font-weight: 600; }
+
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+    .contact-item { display: flex; gap: 16px; margin-bottom: 24px; }
+    .contact-icon {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--bg-card); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; color: var(--accent-dark);
+    }
+    .map-box {
+      width: 100%; height: 200px; border-radius: var(--radius);
+      background: var(--border); margin-top: 20px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); font-weight: 400;
+    }
+
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.85rem; }
+    .form-group input, .form-group textarea {
+      width: 100%; padding: 12px 16px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-family: inherit; font-size: 0.95rem;
+      transition: 0.2s;
+    }
+    .form-group input:focus, .form-group textarea:focus {
+      outline: none; border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(179, 139, 109, 0.1);
+    }
+
+    .auth-wrap { min-height: calc(100vh - 80px); display: flex; align-items: center; justify-content: center; padding: 40px 24px; }
+    .auth-box {
+      max-width: 400px; width: 100%;
+      background: var(--bg-card); border-radius: var(--radius);
+      padding: 40px; border: 1px solid var(--border);
+      box-shadow: var(--shadow-lg);
+    }
+    .auth-box h2 { font-weight: 600; margin-bottom: 4px; }
+    .auth-sub { color: var(--text-muted); margin-bottom: 24px; }
+    .auth-link { color: var(--accent-dark); font-weight: 500; cursor: pointer; }
+    .auth-link:hover { text-decoration: underline; }
+
+    .settings-card { max-width: 560px; margin: 0 auto; }
+    .setting-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 0; border-bottom: 1px solid var(--border);
+    }
+    .setting-row:last-child { border-bottom: none; }
+    .toggle {
+      width: 48px; height: 26px; border-radius: 13px;
+      background: var(--border); cursor: pointer;
+      position: relative; transition: 0.3s;
+    }
+    .toggle.on { background: var(--accent-dark); }
+    .toggle::after {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: #fff; transition: 0.3s;
+    }
+    .toggle.on::after { transform: translateX(22px); }
+
+    .footer {
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      padding: 48px 0 24px;
+      margin-top: 40px;
+    }
+    .footer-grid {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px; margin-bottom: 32px;
+    }
+    .footer h4 { font-weight: 600; margin-bottom: 16px; }
+    .footer a {
+      display: block; color: var(--text-muted); font-size: 0.85rem;
+      margin-bottom: 8px; cursor: pointer;
+      transition: color 0.2s;
+    }
+    .footer a:hover { color: var(--text); }
+    .footer-bottom { text-align: center; color: var(--text-muted); font-size: 0.8rem; padding-top: 24px; border-top: 1px solid var(--border); }
+
+    .reveal { opacity: 0; transform: translateY(24px); transition: all 0.6s; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    .toast {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--bg-card); color: var(--text);
+      padding: 12px 24px; border-radius: 40px;
+      box-shadow: var(--shadow-lg); border: 1px solid var(--border);
+      z-index: 9999; font-weight: 500;
+      opacity: 0; transition: all 0.4s;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .back-top {
+      position: fixed; bottom: 24px; right: 24px;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--bg-card); border: 1px solid var(--border);
+      color: var(--text); font-size: 1.2rem;
+      cursor: pointer; z-index: 999;
+      opacity: 0; visibility: hidden; transform: translateY(12px);
+      transition: 0.3s;
+    }
+    .back-top.visible { opacity: 1; visibility: visible; transform: none; }
+    .back-top:hover { background: var(--text); color: var(--bg); }
+
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+      z-index: 2000; display: flex; align-items: center; justify-content: center;
+      padding: 24px; opacity: 0; visibility: hidden; transition: 0.3s;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open { opacity: 1; visibility: visible; }
+    .modal {
+      background: var(--bg-card); border-radius: var(--radius);
+      max-width: 480px; width: 100%; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .modal-img { width: 100%; height: 200px; object-fit: cover; }
+    .modal-body { padding: 24px; }
+    .modal-close {
+      float: right; width: 32px; height: 32px; border-radius: 50%;
+      border: none; background: var(--border); cursor: pointer; font-size: 1rem;
+    }
+
+    .scroll-progress { position: fixed; top: 0; left: 0; height: 2px; background: var(--accent-dark); width: 0%; z-index: 10001; }
+
+    .auth-login-nav { display: none; }
+    .auth-login-header { display: inline; }
+
+    @media (max-width: 1024px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .hero-grid { grid-template-columns: 1fr; gap: 32px; }
+      .hero h1 { font-size: 2.4rem; }
+      .contact-grid { grid-template-columns: 1fr; gap: 32px; }
+      .footer-grid { grid-template-columns: repeat(2, 1fr); }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .header { padding: 12px 0; }
+      .page { padding-top: 72px; }
+      .nav {
+        display: none; position: fixed; top: 64px; left: 0; right: 0;
+        background: var(--bg-card); flex-direction: column;
+        padding: 16px; border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow);
+      }
+      .nav.open { display: flex; }
+      .nav-link { padding: 12px 16px; width: 100%; border-radius: 8px; }
+      .burger { display: flex; }
+      .grid-2, .grid-3, .grid-4, .gallery-grid { grid-template-columns: 1fr; }
+      .hero { padding: 40px 0; }
+      .hero h1 { font-size: 2rem; }
+      .footer-grid { grid-template-columns: 1fr; gap: 24px; }
+      .auth-box { padding: 28px 20px; }
+      .auth-login-header { display: none; }
+      .auth-login-nav { display: block; }
+    }
+  </style>
+</head>
+<body>
+<div class="scroll-progress" id="scrollProgress"></div>
+<button class="back-top" id="backTop">↑</button>
+<div class="toast" id="toast"></div>
+
+<header class="header">
+  <div class="container header-inner">
+    <div class="logo" onclick="navigate('home')"><span class="logo-icon">✦</span> AG <span>studio</span></div>
+    <nav class="nav" id="mainNav">
+      <span class="nav-link active" data-page="home" data-i18n="nav_home">Главная</span>
+      <span class="nav-link" data-page="services" data-i18n="nav_services">Услуги</span>
+      <span class="nav-link" data-page="projects" data-i18n="nav_projects">Проекты</span>
+      <span class="nav-link" data-page="team" data-i18n="nav_team">Команда</span>
+      <span class="nav-link" data-page="blog" data-i18n="nav_blog">Блог</span>
+      <span class="nav-link" data-page="contact" data-i18n="nav_contact">Контакты</span>
+      <span class="nav-link" data-page="settings" data-i18n="nav_settings">Настройки</span>
+      <span class="nav-link auth-login-link auth-login-nav" data-page="login" data-i18n="nav_login">Вход</span>
+    </nav>
+    <div class="header-controls">
+      <button class="ctrl-btn" id="langToggle">RU</button>
+      <button class="ctrl-btn" id="themeToggle">🌙</button>
+      <span class="nav-link auth-login-link auth-login-header" id="authLoginBtn" data-page="login" data-i18n="nav_login">Вход</span>
+      <div class="user-menu" id="userMenu" style="display:none">
+        <button class="user-name-btn" id="userNameDisplay" onclick="event.stopPropagation();this.parentElement.classList.toggle('open')"></button>
+        <div class="user-dropdown">
+          <span onclick="navigate('settings')" data-i18n="nav_settings">⚙️ Настройки</span>
+          <span onclick="logout()" data-i18n="nav_logout">🚪 Выйти</span>
+        </div>
+      </div>
+      <div class="burger" id="burger"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</header>
+
+<!-- HOME -->
+<section class="page active" id="page-home">
+  <div class="hero">
+    <div class="container hero-grid">
+      <div>
+        <h1 data-i18n="hero_title">Среда, в которой <em>дышится</em> легко</h1>
+        <p data-i18n="hero_desc">Архитектурное бюро и студия ландшафтного дизайна. Мы создаём пространства, где природа встречается с современной эстетикой.</p>
+        <div>
+          <button class="btn" onclick="navigate('contact')" data-i18n="hero_btn1">Обсудить проект</button>
+          <button class="btn btn-outline" onclick="navigate('projects')" style="margin-left:12px" data-i18n="hero_btn2">Портфолио</button>
+        </div>
+      </div>
+      <div class="hero-img">
+        <img src="https://images.pexels.com/photos/1571463/pexels-photo-1571463.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop" alt="Архитектурный ландшафт" loading="lazy" onerror="this.src='https://images.pexels.com/photos/1416879/pexels-photo-1416879.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop'">
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top:0">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag" data-i18n="featured_tag">Избранное</span>
+        <h2 class="section-title" data-i18n="featured_title">Ключевые проекты</h2>
+      </div>
+      <div class="grid-3 reveal">
+        <div class="card"><div class="card-icon">🌿</div><h3 data-i18n="featured1_title">Резиденция у озера</h3><p data-i18n="featured1_desc">Природный сад с видовыми террасами и водной гладью.</p></div>
+        <div class="card"><div class="card-icon">🏛️</div><h3 data-i18n="featured2_title">Патио в скандинавском стиле</h3><p data-i18n="featured2_desc">Минимализм, камень, свет и зелень в городском пространстве.</p></div>
+        <div class="card"><div class="card-icon">🌳</div><h3 data-i18n="featured3_title">Парковый ансамбль</h3><p data-i18n="featured3_desc">Проект общественного пространства с сохранением вековых деревьев.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="background:var(--bg-card);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag" data-i18n="philosophy_tag">Философия</span>
+        <h2 class="section-title" data-i18n="philosophy_title">Дизайн как искусство</h2>
+        <p class="section-desc" data-i18n="philosophy_desc">Мы работаем на стыке архитектуры, ботаники и современных материалов. Каждый проект — это диалог с местом.</p>
+      </div>
+      <div class="grid-3 reveal">
+        <div class="card"><div class="card-icon">🎯</div><h3 data-i18n="phil1_title">Индивидуальный подход</h3><p data-i18n="phil1_desc">Никаких шаблонов — только уникальные решения под ваш участок.</p></div>
+        <div class="card"><div class="card-icon">♻️</div><h3 data-i18n="phil2_title">Экологическая этика</h3><p data-i18n="phil2_desc">Натуральные материалы, биоразнообразие и устойчивость.</p></div>
+        <div class="card"><div class="card-icon">🔄</div><h3 data-i18n="phil3_title">Полный цикл</h3><p data-i18n="phil3_desc">От концепции до реализации и ухода за садом.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag" data-i18n="contact_tag">Связь</span>
+        <h2 class="section-title" data-i18n="contact_form_title">Начните проект</h2>
+      </div>
+      <div style="max-width:520px;margin:0 auto" class="reveal">
+        <form onsubmit="handleForm(event)">
+          <div class="form-group"><label data-i18n="form_name">Имя</label><input type="text" name="name" required placeholder="Алексей"></div>
+          <div class="form-group"><label data-i18n="form_phone">Телефон</label><input type="tel" name="phone" required placeholder="+7 (999) 000-00-00"></div>
+          <div class="form-group"><label data-i18n="form_message">Сообщение</label><textarea name="message" rows="3" placeholder="Опишите ваш участок..."></textarea></div>
+          <button type="submit" class="btn" style="width:100%" data-i18n="form_send">Отправить</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <footer class="footer"><div class="container footer-inner"></div></footer>
+</section>
+
+<!-- SERVICES -->
+<section class="page" id="page-services">
+  <div class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag" data-i18n="nav_services">Услуги</span>
+        <h2 class="section-title" data-i18n="services_title">Что мы делаем</h2>
+        <p class="section-desc" data-i18n="services_desc">Комплексные решения для вашего пространства.</p>
+      </div>
+      <div class="grid-2 reveal">
+        <div class="card"><div class="card-icon">📐</div><h3 data-i18n="srv1_title">Ландшафтный дизайн</h3><p data-i18n="srv1_desc">3D-визуализация, зонирование, освещение, системы полива.</p><div class="card-price" data-i18n="srv1_price">от 80 000 ₽</div><button class="btn" style="margin-top:16px;font-size:0.8rem" onclick="orderService('Ландшафтный дизайн')" data-i18n="btn_order">Заказать</button></div>
+        <div class="card"><div class="card-icon">🏡</div><h3 data-i18n="srv2_title">Благоустройство</h3><p data-i18n="srv2_desc">Озеленение, мощение, малые архитектурные формы.</p><div class="card-price" data-i18n="srv2_price">от 120 000 ₽</div><button class="btn" style="margin-top:16px;font-size:0.8rem" onclick="orderService('Благоустройство')" data-i18n="btn_order">Заказать</button></div>
+        <div class="card"><div class="card-icon">🌿</div><h3 data-i18n="srv3_title">Уход за садом</h3><p data-i18n="srv3_desc">Сезонные работы, стрижка, подкормка, защита растений.</p><div class="card-price" data-i18n="srv3_price">от 15 000 ₽/мес</div><button class="btn" style="margin-top:16px;font-size:0.8rem" onclick="orderService('Уход за садом')" data-i18n="btn_order">Заказать</button></div>
+        <div class="card"><div class="card-icon">🏗️</div><h3 data-i18n="srv4_title">Садовое строительство</h3><p data-i18n="srv4_desc">Террасы, беседки, пруды, дренаж, автополив.</p><div class="card-price" data-i18n="srv4_price">от 200 000 ₽</div><button class="btn" style="margin-top:16px;font-size:0.8rem" onclick="orderService('Садовое строительство')" data-i18n="btn_order">Заказать</button></div>
+      </div>
+    </div>
+  </div>
+  <footer class="footer"><div class="container footer-inner"></div></footer>
+</section>
+
+<!-- PROJECTS -->
+<section class="page" id="page-projects">
+  <div class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag" data-i18n="nav_projects">Портфолио</span>
+        <h2 class="section-title" data-i18n="projects_title">Реализованные объекты</h2>
+      </div>
+      <div class="filters reveal">
+        <button class="filter-btn active" data-filter="all" data-i18n="filter_all">Все</button>
+        <button class="filter-btn" data-filter="garden" data-i18n="filter_garden">Сады</button>
+        <button class="filter-btn" data-filter="terrace" data-i18n="filter_terrace">Террасы</button>
+        <button class="filter-btn" data-filter="pond" data-i18n="filter_pond">Водоёмы</button>
+      </div>
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </div>
+  </div>
+  <footer class="footer"><div class="container footer-inner"></div></footer>
+</section>
+
+<!-- TEAM -->
+<section class="page" id="page-team">
+  <div class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag" data-i18n="nav_team">Команда</span>
+        <h2 class="section-title" data-i18n="team_title">Кто создаёт</h2>
+        <p class="section-desc" data-i18n="team_desc">Архитекторы, дизайнеры, агрономы с опытом от 9 лет.</p>
+      </div>
+      <div class="grid-4" id="teamGrid"></div>
+    </div>
+  </div>
+  <footer class="footer"><div class="container footer-inner"></div></footer>
+</section>
+
+<!-- BLOG -->
+<section class="page" id="page-blog">
+  <div class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag" data-i18n="nav_blog">Блог</span>
+        <h2 class="section-title" data-i18n="blog_title">Заметки о садоводстве</h2>
+      </div>
+      <div class="grid-3" id="blogGrid"></div>
+    </div>
+  </div>
+  <footer class="footer"><div class="container footer-inner"></div></footer>
+</section>
+
+<!-- CONTACT -->
+<section class="page" id="page-contact">
+  <div class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag" data-i18n="nav_contact">Контакты</span>
+        <h2 class="section-title" data-i18n="contact_page_title">Свяжитесь с нами</h2>
+      </div>
+      <div class="contact-grid reveal">
+        <div>
+          <div class="contact-item"><div class="contact-icon">📍</div><div><strong data-i18n="contact_address_label">Адрес</strong><br data-i18n="contact_address">Санкт-Петербург, наб. реки Фонтанки, 12</div></div>
+          <div class="contact-item"><div class="contact-icon">📞</div><div><strong data-i18n="contact_phone_label">Телефон</strong><br>+7 (812) 456-78-90</div></div>
+          <div class="contact-item"><div class="contact-icon">✉️</div><div><strong data-i18n="contact_email_label">Email</strong><br>info@agstudio.ru</div></div>
+          <div class="contact-item"><div class="contact-icon">🕐</div><div><strong data-i18n="contact_hours">Режим работы</strong><br data-i18n="contact_hours_val">Пн–Пт: 10:00–19:00</div></div>
+          <div class="map-box" data-i18n="map_placeholder">Карта — наб. Фонтанки, 12</div>
+        </div>
+        <form onsubmit="handleForm(event)">
+          <div class="form-group"><label data-i18n="form_name">Имя</label><input type="text" name="name" required></div>
+          <div class="form-group"><label data-i18n="form_email">Email</label><input type="email" name="email" required></div>
+          <div class="form-group"><label data-i18n="form_phone">Телефон</label><input type="tel" name="phone" required></div>
+          <div class="form-group"><label data-i18n="form_message">Сообщение</label><textarea name="message" rows="4" required></textarea></div>
+          <button type="submit" class="btn" style="width:100%" data-i18n="form_send">Отправить</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <footer class="footer"><div class="container footer-inner"></div></footer>
+</section>
+
+<!-- LOGIN & REGISTER -->
+<section class="page" id="page-login">
+  <div class="auth-wrap">
+    <div class="auth-box reveal">
+      <h2 data-i18n="login_title">Вход</h2>
+      <p class="auth-sub" data-i18n="login_sub">Войдите в личный кабинет</p>
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group"><label data-i18n="form_email">Email</label><input type="email" name="email" required placeholder="email@example.com"></div>
+        <div class="form-group"><label data-i18n="form_password">Пароль</label><input type="password" name="password" required minlength="6" placeholder="••••••••"></div>
+        <button type="submit" class="btn" style="width:100%;margin-bottom:16px" data-i18n="login_btn">Войти</button>
+      </form>
+      <p style="text-align:center;font-size:0.9rem;color:var(--text-muted)"><span data-i18n="no_account">Нет аккаунта?</span> <span class="auth-link" onclick="navigate('register')" data-i18n="register_link">Зарегистрироваться</span></p>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="page-register">
+  <div class="auth-wrap">
+    <div class="auth-box reveal">
+      <h2 data-i18n="register_title">Регистрация</h2>
+      <p class="auth-sub" data-i18n="register_sub">Создайте аккаунт</p>
+      <form onsubmit="handleRegister(event)">
+        <div class="form-group"><label data-i18n="form_name">Имя</label><input type="text" name="name" required minlength="2" placeholder="Алексей"></div>
+        <div class="form-group"><label data-i18n="form_email">Email</label><input type="email" name="email" required placeholder="email@example.com"></div>
+        <div class="form-group"><label data-i18n="form_password">Пароль</label><input type="password" name="password" required minlength="6" placeholder="••••••••"></div>
+        <button type="submit" class="btn" style="width:100%;margin-bottom:16px" data-i18n="register_btn">Зарегистрироваться</button>
+      </form>
+      <p style="text-align:center;font-size:0.9rem;color:var(--text-muted)"><span data-i18n="have_account">Уже есть аккаунт?</span> <span class="auth-link" onclick="navigate('login')" data-i18n="login_link">Войти</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- SETTINGS -->
+<section class="page" id="page-settings">
+  <div class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag" data-i18n="nav_settings">Настройки</span>
+        <h2 class="section-title" data-i18n="settings_title">Параметры</h2>
+      </div>
+      <div class="card settings-card reveal">
+        <div class="setting-row">
+          <div><strong data-i18n="settings_lang">Язык</strong><br><span style="color:var(--text-muted);font-size:0.85rem" data-i18n="settings_lang_desc">Русский / English</span></div>
+          <button class="ctrl-btn" id="langToggleSettings" style="width:auto;padding:0 20px;border-radius:40px">RU</button>
+        </div>
+        <div class="setting-row">
+          <div><strong data-i18n="settings_theme">Тема</strong><br><span style="color:var(--text-muted);font-size:0.85rem" data-i18n="settings_theme_desc">Светлая / Тёмная</span></div>
+          <div class="toggle" id="themeToggleSettings"></div>
+        </div>
+      </div>
+      <div class="card settings-card reveal" id="profileCard" style="display:none;margin-top:24px">
+        <h3 style="margin-bottom:16px" data-i18n="profile_title">Личный кабинет</h3>
+        <div class="profile-row" style="padding:8px 0"><strong data-i18n="form_name">Имя:</strong> <span id="profileName"></span></div>
+        <div class="profile-row" style="padding:8px 0"><strong data-i18n="form_email">Email:</strong> <span id="profileEmail"></span></div>
+        <div class="profile-row" style="padding:8px 0"><strong data-i18n="profile_requests">Заявок:</strong> <span id="requestsCount">0</span></div>
+        <button class="btn" style="margin-top:12px" onclick="logout()" data-i18n="nav_logout">Выйти</button>
+      </div>
+    </div>
+  </div>
+  <footer class="footer"><div class="container footer-inner"></div></footer>
+</section>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ======== ПОЛНАЯ ЛОКАЛИЗАЦИЯ ========
+const STORAGE = 'ag_settings', AUTH = 'ag_auth';
+let lang = 'ru', theme = 'light', pendingService = null;
+
+function getAuth(){return JSON.parse(localStorage.getItem(AUTH)||'{"users":[],"session":null,"requests":[]}');}
+function saveAuth(d){localStorage.setItem(AUTH,JSON.stringify(d));}
+
+// ===== ВСЕ ПЕРЕВОДЫ =====
+const LOCALES = {
+  ru: {
+    nav_home: 'Главная',
+    nav_services: 'Услуги',
+    nav_projects: 'Проекты',
+    nav_team: 'Команда',
+    nav_blog: 'Блог',
+    nav_contact: 'Контакты',
+    nav_settings: 'Настройки',
+    nav_login: 'Вход',
+    nav_logout: 'Выйти',
+    
+    hero_title: 'Среда, в которой <em>дышится</em> легко',
+    hero_desc: 'Архитектурное бюро и студия ландшафтного дизайна. Мы создаём пространства, где природа встречается с современной эстетикой.',
+    hero_btn1: 'Обсудить проект',
+    hero_btn2: 'Портфолио',
+    
+    featured_tag: 'Избранное',
+    featured_title: 'Ключевые проекты',
+    featured1_title: 'Резиденция у озера',
+    featured1_desc: 'Природный сад с видовыми террасами и водной гладью.',
+    featured2_title: 'Патио в скандинавском стиле',
+    featured2_desc: 'Минимализм, камень, свет и зелень в городском пространстве.',
+    featured3_title: 'Парковый ансамбль',
+    featured3_desc: 'Проект общественного пространства с сохранением вековых деревьев.',
+    
+    philosophy_tag: 'Философия',
+    philosophy_title: 'Дизайн как искусство',
+    philosophy_desc: 'Мы работаем на стыке архитектуры, ботаники и современных материалов. Каждый проект — это диалог с местом.',
+    phil1_title: 'Индивидуальный подход',
+    phil1_desc: 'Никаких шаблонов — только уникальные решения под ваш участок.',
+    phil2_title: 'Экологическая этика',
+    phil2_desc: 'Натуральные материалы, биоразнообразие и устойчивость.',
+    phil3_title: 'Полный цикл',
+    phil3_desc: 'От концепции до реализации и ухода за садом.',
+    
+    contact_tag: 'Связь',
+    contact_form_title: 'Начните проект',
+    
+    services_title: 'Что мы делаем',
+    services_desc: 'Комплексные решения для вашего пространства.',
+    srv1_title: 'Ландшафтный дизайн',
+    srv1_desc: '3D-визуализация, зонирование, освещение, системы полива.',
+    srv1_price: 'от 80 000 ₽',
+    srv2_title: 'Благоустройство',
+    srv2_desc: 'Озеленение, мощение, малые архитектурные формы.',
+    srv2_price: 'от 120 000 ₽',
+    srv3_title: 'Уход за садом',
+    srv3_desc: 'Сезонные работы, стрижка, подкормка, защита растений.',
+    srv3_price: 'от 15 000 ₽/мес',
+    srv4_title: 'Садовое строительство',
+    srv4_desc: 'Террасы, беседки, пруды, дренаж, автополив.',
+    srv4_price: 'от 200 000 ₽',
+    btn_order: 'Заказать',
+    
+    projects_title: 'Реализованные объекты',
+    filter_all: 'Все',
+    filter_garden: 'Сады',
+    filter_terrace: 'Террасы',
+    filter_pond: 'Водоёмы',
+    
+    team_title: 'Кто создаёт',
+    team_desc: 'Архитекторы, дизайнеры, агрономы с опытом от 9 лет.',
+    team_exp: 'Опыт: ',
+    team_years: ' лет',
+    
+    blog_title: 'Заметки о садоводстве',
+    
+    contact_page_title: 'Свяжитесь с нами',
+    contact_address_label: 'Адрес',
+    contact_address: 'Санкт-Петербург, наб. реки Фонтанки, 12',
+    contact_phone_label: 'Телефон',
+    contact_email_label: 'Email',
+    contact_hours: 'Режим работы',
+    contact_hours_val: 'Пн–Пт: 10:00–19:00',
+    map_placeholder: 'Карта — наб. Фонтанки, 12',
+    
+    form_name: 'Имя',
+    form_email: 'Email',
+    form_password: 'Пароль',
+    form_phone: 'Телефон',
+    form_message: 'Сообщение',
+    form_send: 'Отправить',
+    
+    login_title: 'Вход',
+    login_sub: 'Войдите в личный кабинет',
+    login_btn: 'Войти',
+    no_account: 'Нет аккаунта?',
+    register_link: 'Зарегистрироваться',
+    
+    register_title: 'Регистрация',
+    register_sub: 'Создайте аккаунт',
+    register_btn: 'Зарегистрироваться',
+    have_account: 'Уже есть аккаунт?',
+    login_link: 'Войти',
+    
+    settings_title: 'Параметры',
+    settings_lang: 'Язык',
+    settings_lang_desc: 'Русский / English',
+    settings_theme: 'Тема',
+    settings_theme_desc: 'Светлая / Тёмная',
+    profile_title: 'Личный кабинет',
+    profile_requests: 'Заявок отправлено'
+  },
+  en: {
+    nav_home: 'Home',
+    nav_services: 'Services',
+    nav_projects: 'Projects',
+    nav_team: 'Team',
+    nav_blog: 'Blog',
+    nav_contact: 'Contact',
+    nav_settings: 'Settings',
+    nav_login: 'Login',
+    nav_logout: 'Log out',
+    
+    hero_title: 'Environment where <em>breathing</em> is easy',
+    hero_desc: 'Architectural bureau and landscape design studio. We create spaces where nature meets modern aesthetics.',
+    hero_btn1: 'Discuss project',
+    hero_btn2: 'Portfolio',
+    
+    featured_tag: 'Featured',
+    featured_title: 'Key projects',
+    featured1_title: 'Lakeside residence',
+    featured1_desc: 'Natural garden with viewing terraces and water surface.',
+    featured2_title: 'Scandinavian style patio',
+    featured2_desc: 'Minimalism, stone, light and greenery in urban space.',
+    featured3_title: 'Park ensemble',
+    featured3_desc: 'Public space project preserving century-old trees.',
+    
+    philosophy_tag: 'Philosophy',
+    philosophy_title: 'Design as art',
+    philosophy_desc: 'We work at the intersection of architecture, botany and modern materials. Each project is a dialogue with the place.',
+    phil1_title: 'Individual approach',
+    phil1_desc: 'No templates — only unique solutions for your site.',
+    phil2_title: 'Ecological ethics',
+    phil2_desc: 'Natural materials, biodiversity and sustainability.',
+    phil3_title: 'Full cycle',
+    phil3_desc: 'From concept to implementation and garden care.',
+    
+    contact_tag: 'Contact',
+    contact_form_title: 'Start a project',
+    
+    services_title: 'What we do',
+    services_desc: 'Comprehensive solutions for your space.',
+    srv1_title: 'Landscape design',
+    srv1_desc: '3D visualization, zoning, lighting, irrigation systems.',
+    srv1_price: 'from $800',
+    srv2_title: 'Landscaping',
+    srv2_desc: 'Greening, paving, small architectural forms.',
+    srv2_price: 'from $1,200',
+    srv3_title: 'Garden care',
+    srv3_desc: 'Seasonal work, trimming, fertilizing, plant protection.',
+    srv3_price: 'from $150/mo',
+    srv4_title: 'Garden construction',
+    srv4_desc: 'Terraces, gazebos, ponds, drainage, auto-irrigation.',
+    srv4_price: 'from $2,000',
+    btn_order: 'Order',
+    
+    projects_title: 'Completed projects',
+    filter_all: 'All',
+    filter_garden: 'Gardens',
+    filter_terrace: 'Terraces',
+    filter_pond: 'Ponds',
+    
+    team_title: 'Who creates',
+    team_desc: 'Architects, designers, agronomists with 9+ years of experience.',
+    team_exp: 'Experience: ',
+    team_years: ' years',
+    
+    blog_title: 'Gardening notes',
+    
+    contact_page_title: 'Contact us',
+    contact_address_label: 'Address',
+    contact_address: 'St. Petersburg, Fontanka embankment, 12',
+    contact_phone_label: 'Phone',
+    contact_email_label: 'Email',
+    contact_hours: 'Working hours',
+    contact_hours_val: 'Mon–Fri: 10:00–19:00',
+    map_placeholder: 'Map — Fontanka emb., 12',
+    
+    form_name: 'Name',
+    form_email: 'Email',
+    form_password: 'Password',
+    form_phone: 'Phone',
+    form_message: 'Message',
+    form_send: 'Send',
+    
+    login_title: 'Sign in',
+    login_sub: 'Sign in to your account',
+    login_btn: 'Sign in',
+    no_account: 'No account?',
+    register_link: 'Register',
+    
+    register_title: 'Registration',
+    register_sub: 'Create an account',
+    register_btn: 'Register',
+    have_account: 'Already have an account?',
+    login_link: 'Sign in',
+    
+    settings_title: 'Settings',
+    settings_lang: 'Language',
+    settings_lang_desc: 'Russian / English',
+    settings_theme: 'Theme',
+    settings_theme_desc: 'Light / Dark',
+    profile_title: 'Dashboard',
+    profile_requests: 'Requests sent'
+  }
+};
+
+// ===== ФОТОГРАФИИ =====
+const IMGS = {
+  gallery: [
+    'https://images.pexels.com/photos/1465838/pexels-photo-1465838.jpeg?auto=compress&cs=tinysrgb&w=600&h=450&fit=crop',
+    'https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&w=600&h=450&fit=crop',
+    'https://images.pexels.com/photos/1805043/pexels-photo-1805043.jpeg?auto=compress&cs=tinysrgb&w=600&h=450&fit=crop',
+    'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg?auto=compress&cs=tinysrgb&w=600&h=450&fit=crop',
+    'https://images.pexels.com/photos/1913024/pexels-photo-1913024.jpeg?auto=compress&cs=tinysrgb&w=600&h=450&fit=crop',
+    'https://images.pexels.com/photos/54319/pexels-photo-54319.jpeg?auto=compress&cs=tinysrgb&w=600&h=450&fit=crop'
+  ],
+  team: [
+    'https://images.pexels.com/photos/3756677/pexels-photo-3756677.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
+    'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
+    'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
+    'https://images.pexels.com/photos/2380794/pexels-photo-2380794.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop'
+  ],
+  blog: [
+    'https://images.pexels.com/photos/1072824/pexels-photo-1072824.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop',
+    'https://images.pexels.com/photos/1179229/pexels-photo-1179229.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop',
+    'https://images.pexels.com/photos/1037993/pexels-photo-1037993.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop',
+    'https://images.pexels.com/photos/267839/pexels-photo-267839.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop'
+  ]
+};
+
+const galleryData = [
+  {cat:'garden', title_ru:'Садовый ансамбль', title_en:'Garden ensemble', desc_ru:'15 соток, Ленинградская область', desc_en:'15 acres, Leningrad region'},
+  {cat:'terrace', title_ru:'Терраса с видом', title_en:'Terrace with view', desc_ru:'120 м², камень и дерево', desc_en:'120 m², stone and wood'},
+  {cat:'pond', title_ru:'Зеркальный пруд', title_en:'Mirror pond', desc_ru:'Декоративный водоём 40 м²', desc_en:'Decorative pond 40 m²'},
+  {cat:'garden', title_ru:'Минималистичный сад', title_en:'Minimalist garden', desc_ru:'Современный стиль, 8 соток', desc_en:'Modern style, 8 acres'},
+  {cat:'terrace', title_ru:'BBQ-зона', title_en:'BBQ area', desc_ru:'Открытая терраса с мангалом', desc_en:'Open terrace with grill'},
+  {cat:'pond', title_ru:'Каскадный фонтан', title_en:'Cascade fountain', desc_ru:'25 м², с подсветкой', desc_en:'25 m², with lighting'}
+];
+
+const teamData = [
+  {name:'Анна Громова', role_ru:'Ландшафтный архитектор', role_en:'Landscape architect', exp:12},
+  {name:'Игорь Каменев', role_ru:'Архитектор', role_en:'Architect', exp:15},
+  {name:'Наталья Ростова', role_ru:'Агроном', role_en:'Agronomist', exp:9},
+  {name:'Виктор Лесной', role_ru:'Инженер-строитель', role_en:'Construction engineer', exp:11}
+];
+
+const blogData = [
+  {date_ru:'12 июля 2026', date_en:'July 12, 2026', title_ru:'Как подготовить сад к осени', title_en:'Preparing the garden for autumn', desc_ru:'Сезонный уход за растениями и газоном.', desc_en:'Seasonal care for plants and lawn.'},
+  {date_ru:'3 июля 2026', date_en:'July 3, 2026', title_ru:'Растения для тенистого сада', title_en:'Plants for a shady garden', desc_ru:'Неприхотливые культуры для затенённых участков.', desc_en:'Unpretentious crops for shaded areas.'},
+  {date_ru:'25 июня 2026', date_en:'June 25, 2026', title_ru:'Тренды дизайна 2026', title_en:'Design trends 2026', desc_ru:'Натуральные материалы, вертикальное озеленение.', desc_en:'Natural materials, vertical greening.'},
+  {date_ru:'15 июня 2026', date_en:'June 15, 2026', title_ru:'Автополив: выбор системы', title_en:'Auto-irrigation: choosing a system', desc_ru:'Сравнение капельного и дождевального полива.', desc_en:'Comparison of drip and sprinkler irrigation.'}
+];
+
+// ===== ОСНОВНЫЕ ФУНКЦИИ =====
+function t(key) {
+  return LOCALES[lang]?.[key] || key;
+}
+
+function loadSettings(){
+  const s=JSON.parse(localStorage.getItem(STORAGE)||'{}');
+  lang=s.lang||'ru'; theme=s.theme||'light';
+  document.documentElement.setAttribute('data-theme',theme);
+  document.documentElement.lang=lang;
+  applyLocalization();
+  updateUI();
+}
+function saveSettings(){localStorage.setItem(STORAGE,JSON.stringify({lang,theme}));}
+
+function applyLocalization() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const translation = t(key);
+    if (translation && translation !== key) {
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        el.placeholder = translation;
+      } else {
+        el.innerHTML = translation;
+      }
+    }
+  });
+}
+
+function updateUI(){
+  document.querySelectorAll('#langToggle, #langToggleSettings').forEach(b => {
+    b.textContent = lang.toUpperCase();
+  });
+  
+  document.getElementById('themeToggle').textContent = theme === 'dark' ? '☀️' : '🌙';
+  document.getElementById('themeToggleSettings').classList.toggle('on', theme === 'dark');
+  
+  applyLocalization();
+  renderGallery(); 
+  renderTeam(); 
+  renderBlog(); 
+  renderFooter(); 
+  updateAuthUI();
+}
+
+function toggleLang(){
+  lang = lang === 'ru' ? 'en' : 'ru';
+  saveSettings(); 
+  updateUI();
+}
+
+function toggleTheme(){
+  theme = theme === 'light' ? 'dark' : 'light'; 
+  document.documentElement.setAttribute('data-theme', theme); 
+  saveSettings(); 
+  updateUI();
+}
+
+function navigate(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const target = document.getElementById('page-'+page);
+  if(target) target.classList.add('active');
+  document.querySelectorAll('.nav-link[data-page]').forEach(l=>l.classList.toggle('active',l.dataset.page===page));
+  const nav = document.getElementById('mainNav');
+  if(nav) nav.classList.remove('open');
+  document.getElementById('burger')?.classList.remove('open');
+  window.scrollTo(0,0);
+  setTimeout(initReveal, 150);
+  if(page==='settings') renderProfile();
+}
+
+document.querySelectorAll('.nav-link[data-page]').forEach(l=>l.addEventListener('click',()=>navigate(l.dataset.page)));
+document.getElementById('burger')?.addEventListener('click',()=>{
+  document.getElementById('mainNav')?.classList.toggle('open');
+  document.getElementById('burger')?.classList.toggle('open');
+});
+document.getElementById('langToggle')?.addEventListener('click', toggleLang);
+document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
+document.getElementById('langToggleSettings')?.addEventListener('click', toggleLang);
+document.getElementById('themeToggleSettings')?.addEventListener('click', toggleTheme);
+
+function updateAuthUI(){
+  const a=getAuth(), lbs=document.querySelectorAll('.auth-login-link'), um=document.getElementById('userMenu'), un=document.getElementById('userNameDisplay');
+  if(a.session && um){
+    lbs.forEach(lb=>lb.style.display='none');
+    um.style.display='flex';
+    un.textContent=a.session.name.split(' ')[0];
+  }else if(um){
+    lbs.forEach(lb=>{lb.style.display='';});
+    um.style.display='none';
+  }
+  renderProfile();
+}
+
+function renderProfile(){
+  const c=document.getElementById('profileCard'); if(!c)return;
+  const a=getAuth();
+  if(a.session){c.style.display='block'; document.getElementById('profileName').textContent=a.session.name; document.getElementById('profileEmail').textContent=a.session.email; document.getElementById('requestsCount').textContent=(a.requests||[]).length;}else c.style.display='none';
+}
+
+function logout(){const a=getAuth();a.session=null;saveAuth(a);updateAuthUI();showToast(t('nav_logout') || 'Вы вышли');navigate('home');}
+
+document.addEventListener('click',()=>document.getElementById('userMenu')?.classList.remove('open'));
+
+function handleForm(e){
+  e.preventDefault();
+  const a=getAuth(); a.requests=a.requests||[];
+  const data=Object.fromEntries(new FormData(e.target));
+  a.requests.push({...data, date:new Date().toISOString(), user:a.session?.email||'guest'});
+  saveAuth(a); showToast(t('form_send') + '!'); e.target.reset(); renderProfile();
+}
+
+function handleLogin(e){
+  e.preventDefault();
+  const email=e.target.email.value.trim().toLowerCase(), pass=e.target.password.value;
+  const a=getAuth(), u=a.users.find(u=>u.email===email && u.password===pass);
+  if(!u){showToast('Неверный email или пароль');return;}
+  a.session={name:u.name,email:u.email}; saveAuth(a); updateAuthUI(); showToast('Добро пожаловать!'); navigate('home');
+}
+
+function handleRegister(e){
+  e.preventDefault();
+  const name=e.target.name.value.trim(), email=e.target.email.value.trim().toLowerCase(), pass=e.target.password.value;
+  const a=getAuth();
+  if(a.users.some(u=>u.email===email)){showToast('Email уже зарегистрирован');return;}
+  a.users.push({name,email,password}); a.session={name,email}; saveAuth(a); updateAuthUI(); showToast('Регистрация успешна!'); navigate('home');
+}
+
+function orderService(name){
+  const serviceName = lang === 'ru' ? name : (name === 'Ландшафтный дизайн' ? 'Landscape design' : 
+                     name === 'Благоустройство' ? 'Landscaping' : 
+                     name === 'Уход за садом' ? 'Garden care' : 'Garden construction');
+  pendingService = serviceName; 
+  navigate('contact'); 
+  setTimeout(()=>{
+    const ta=document.querySelector('#page-contact textarea[name="message"]'); 
+    if(ta) ta.value = (lang === 'ru' ? 'Интересует: ' : 'Interested in: ') + serviceName;
+  },150);
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  if(!t) return;
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(t._t); 
+  t._t=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+function initReveal(){
+  const elements = document.querySelectorAll('.reveal:not(.visible)');
+  if(elements.length === 0) return;
+  
+  const obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if(entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  
+  elements.forEach(function(el) {
+    obs.observe(el);
+  });
+}
+
+function openGalleryModal(i){
+  const item = galleryData[i];
+  if(!item) return;
+  const title = lang === 'ru' ? item.title_ru : item.title_en;
+  const desc = lang === 'ru' ? item.desc_ru : item.desc_en;
+  document.getElementById('modalBody').innerHTML=`
+    <img class="modal-img" src="${IMGS.gallery[i]}" alt="${title}" onerror="this.src='https://images.pexels.com/photos/1416879/pexels-photo-1416879.jpeg?auto=compress&cs=tinysrgb&w=600&h=450&fit=crop'">
+    <div class="modal-body"><h3>${title}</h3><p style="color:var(--text-muted);margin:8px 0">${desc}</p><button class="btn" onclick="closeModal();orderService('${title}')">${t('btn_order')}</button></div>
+  `;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal(e){if(e && e.target !== e.currentTarget) return; document.getElementById('modalOverlay').classList.remove('open');}
+
+function renderGallery(){
+  const grid = document.getElementById('galleryGrid');
+  if(!grid) return;
+  grid.innerHTML = galleryData.map((item,i)=>{
+    const title = lang === 'ru' ? item.title_ru : item.title_en;
+    const desc = lang === 'ru' ? item.desc_ru : item.desc_en;
+    return `<div class="gallery-item reveal" data-cat="${item.cat}" onclick="openGalleryModal(${i})">
+      <img src="${IMGS.gallery[i]}" alt="${title}" loading="lazy" onerror="this.src='https://images.pexels.com/photos/1416879/pexels-photo-1416879.jpeg?auto=compress&cs=tinysrgb&w=600&h=450&fit=crop'">
+      <div class="gallery-overlay"><h3>${title}</h3><p>${desc}</p></div>
+    </div>`;
+  }).join('');
+  setTimeout(initReveal, 100);
+}
+
+document.querySelector('.filters')?.addEventListener('click', function(e) {
+  if(!e.target.classList.contains('filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  e.target.classList.add('active');
+  const f = e.target.dataset.filter;
+  document.querySelectorAll('.gallery-item').forEach(function(el) {
+    el.style.display = (f === 'all' || el.dataset.cat === f) ? '' : 'none';
+  });
+});
+
+function renderTeam(){
+  const grid = document.getElementById('teamGrid');
+  if(!grid) return;
+  grid.innerHTML = teamData.map((m,i)=>`
+    <div class="card team-card reveal">
+      <img src="${IMGS.team[i]}" alt="${m.name}" loading="lazy" onerror="this.src='https://images.pexels.com/photos/3756677/pexels-photo-3756677.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop'">
+      <div class="team-info"><h3>${m.name}</h3><div class="team-role">${lang === 'ru' ? m.role_ru : m.role_en}</div><div style="color:var(--text-muted);font-size:0.8rem">${t('team_exp')}${m.exp}${t('team_years')}</div></div>
+    </div>`).join('');
+  setTimeout(initReveal, 100);
+}
+
+function renderBlog(){
+  const grid = document.getElementById('blogGrid');
+  if(!grid) return;
+  grid.innerHTML = blogData.map((item,i)=>`
+    <div class="card blog-card reveal">
+      <img src="${IMGS.blog[i]}" alt="${lang === 'ru' ? item.title_ru : item.title_en}" loading="lazy" onerror="this.src='https://images.pexels.com/photos/1072824/pexels-photo-1072824.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop'">
+      <div class="blog-body"><div class="blog-date">${lang === 'ru' ? item.date_ru : item.date_en}</div><h3>${lang === 'ru' ? item.title_ru : item.title_en}</h3><p>${lang === 'ru' ? item.desc_ru : item.desc_en}</p></div>
+    </div>`).join('');
+  setTimeout(initReveal, 100);
+}
+
+function renderFooter(){
+  document.querySelectorAll('.footer-inner').forEach(function(el) {
+    const nav_text = lang === 'ru' ? 'Навигация' : 'Navigation';
+    const contact_text = lang === 'ru' ? 'Контакты' : 'Contact';
+    const settings_text = lang === 'ru' ? 'Настройки' : 'Settings';
+    const rights_text = lang === 'ru' ? '© 2026 AG studio. Все права защищены.' : '© 2026 AG studio. All rights reserved.';
+    el.innerHTML = `
+      <div class="footer-grid">
+        <div><div style="font-weight:600;font-size:1.1rem;margin-bottom:8px">✦ AG studio</div><p style="color:var(--text-muted);font-size:0.85rem">${lang === 'ru' ? 'Архитектурное бюро и студия ландшафтного дизайна.' : 'Architectural bureau and landscape design studio.'}</p></div>
+        <div><h4>${nav_text}</h4><a onclick="navigate('home')">${t('nav_home')}</a><a onclick="navigate('services')">${t('nav_services')}</a><a onclick="navigate('projects')">${t('nav_projects')}</a></div>
+        <div><h4>${contact_text}</h4><a>+7 (812) 456-78-90</a><a>info@agstudio.ru</a></div>
+        <div><h4>${settings_text}</h4><a onclick="navigate('settings')">${t('nav_settings')}</a><a onclick="authFooterClick()" id="footerAuthLink">${t('nav_login')}</a></div>
+      </div>
+      <div class="footer-bottom">${rights_text}</div>
+    `;
+    const fa = document.getElementById('footerAuthLink');
+    if(fa) fa.textContent = getAuth().session ? getAuth().session.name.split(' ')[0] : t('nav_login');
+  });
+}
+
+function authFooterClick(){ getAuth().session ? navigate('settings') : navigate('login'); }
+
+document.addEventListener('scroll', function() {
+  const st = window.scrollY;
+  const dh = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = document.getElementById('scrollProgress');
+  if(progress) progress.style.width = (dh > 0 ? (st / dh) * 100 : 0) + '%';
+  
+  const header = document.querySelector('.header');
+  if(header) header.classList.toggle('scrolled', st > 20);
+  
+  const backTop = document.getElementById('backTop');
+  if(backTop) backTop.classList.toggle('visible', st > 400);
+});
+
+document.getElementById('backTop')?.addEventListener('click', function() {
+  window.scrollTo({top: 0, behavior: 'smooth'});
+});
+
+loadSettings();
+setTimeout(initReveal, 300);
+</script>
+</body>
+</html>
