@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>NEON WAVE — студия звукозаписи</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      background: #0a0a0f;
+      color: #e0e0e6;
+      line-height: 1.5;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* неоновая сетка */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(255, 0, 200, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 200, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app-container {
+      position: relative;
+      z-index: 1;
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ----- навигация ----- */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.8rem 0;
+      border-bottom: 1px solid rgba(255, 0, 200, 0.15);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .logo {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      background: linear-gradient(135deg, #ff00c8, #7000ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    .logo span {
+      background: linear-gradient(135deg, #00d4ff, #0088ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #8a8a9a;
+      font-weight: 400;
+      font-size: 0.75rem;
+      letter-spacing: 1.5px;
+      position: relative;
+      padding: 0.2rem 0;
+      transition: color 0.3s;
+      text-transform: uppercase;
+      font-family: 'Space Mono', monospace;
+      cursor: pointer;
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0%;
+      height: 1px;
+      background: linear-gradient(90deg, #ff00c8, #00d4ff);
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      color: #f0f0ff;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-links a.active-page {
+      color: #f0f0ff;
+    }
+    .nav-links a.active-page::after {
+      width: 100%;
+      background: linear-gradient(90deg, #ff00c8, #00d4ff);
+    }
+
+    /* ----- страницы ----- */
+    .page {
+      display: none;
+      flex: 1;
+      animation: fadeSlide 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 2rem 0 3rem;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes fadeSlide {
+      0% { opacity: 0; transform: translateY(16px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ----- HERO ----- */
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+      margin-top: 1rem;
+    }
+
+    .hero-text h1 {
+      font-size: clamp(2.8rem, 6vw, 4.8rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -1px;
+    }
+
+    .hero-text h1 .neon {
+      background: linear-gradient(135deg, #ff00c8, #7000ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 40px rgba(255, 0, 200, 0.3);
+    }
+
+    .hero-text h1 .neon-blue {
+      background: linear-gradient(135deg, #00d4ff, #0088ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 40px rgba(0, 200, 255, 0.3);
+    }
+
+    .hero-text p {
+      margin: 1.5rem 0 2rem;
+      font-size: 1.15rem;
+      color: #8a8a9a;
+      max-width: 90%;
+      font-weight: 300;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.8rem 2.5rem;
+      border: none;
+      background: linear-gradient(135deg, #ff00c8, #7000ff);
+      color: #fff;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.35s ease;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      border-radius: 2px;
+    }
+
+    .btn::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #00d4ff, #0088ff);
+      transition: left 0.4s ease;
+      z-index: -1;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(255, 0, 200, 0.35);
+    }
+    .btn:hover::before {
+      left: 0;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(255, 0, 200, 0.4);
+      margin-left: 1rem;
+    }
+
+    .btn-outline::before {
+      display: none;
+    }
+
+    .btn-outline:hover {
+      border-color: #ff00c8;
+      box-shadow: 0 0 30px rgba(255, 0, 200, 0.2);
+      background: rgba(255, 0, 200, 0.05);
+    }
+
+    .hero-visual {
+      background: radial-gradient(ellipse at center, rgba(255, 0, 200, 0.08), transparent 70%);
+      height: 400px;
+      border-radius: 2px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 0, 200, 0.1);
+    }
+
+    .hero-visual .waveform {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      height: 200px;
+      width: 80%;
+    }
+
+    .waveform .bar {
+      width: 6px;
+      background: linear-gradient(to top, #7000ff, #ff00c8);
+      border-radius: 2px;
+      animation: waveAnim 1.2s ease-in-out infinite alternate;
+      opacity: 0.8;
+    }
+
+    .waveform .bar:nth-child(1) { height: 60px; animation-delay: 0s; }
+    .waveform .bar:nth-child(2) { height: 120px; animation-delay: 0.1s; }
+    .waveform .bar:nth-child(3) { height: 80px; animation-delay: 0.2s; }
+    .waveform .bar:nth-child(4) { height: 180px; animation-delay: 0.3s; }
+    .waveform .bar:nth-child(5) { height: 140px; animation-delay: 0.4s; }
+    .waveform .bar:nth-child(6) { height: 200px; animation-delay: 0.5s; }
+    .waveform .bar:nth-child(7) { height: 160px; animation-delay: 0.6s; }
+    .waveform .bar:nth-child(8) { height: 100px; animation-delay: 0.7s; }
+    .waveform .bar:nth-child(9) { height: 70px; animation-delay: 0.8s; }
+    .waveform .bar:nth-child(10) { height: 130px; animation-delay: 0.9s; }
+    .waveform .bar:nth-child(11) { height: 190px; animation-delay: 0.1s; }
+    .waveform .bar:nth-child(12) { height: 90px; animation-delay: 0.2s; }
+    .waveform .bar:nth-child(13) { height: 110px; animation-delay: 0.3s; }
+    .waveform .bar:nth-child(14) { height: 170px; animation-delay: 0.4s; }
+    .waveform .bar:nth-child(15) { height: 50px; animation-delay: 0.5s; }
+    .waveform .bar:nth-child(16) { height: 150px; animation-delay: 0.6s; }
+    .waveform .bar:nth-child(17) { height: 85px; animation-delay: 0.7s; }
+    .waveform .bar:nth-child(18) { height: 125px; animation-delay: 0.8s; }
+
+    @keyframes waveAnim {
+      0% { transform: scaleY(0.4); opacity: 0.5; }
+      100% { transform: scaleY(1); opacity: 1; }
+    }
+
+    /* ----- услуги ----- */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .service-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255, 0, 200, 0.08);
+      padding: 2rem 1.8rem;
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+      border-radius: 2px;
+    }
+
+    .service-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #ff00c8, #00d4ff);
+      transform: scaleX(0);
+      transition: transform 0.4s ease;
+    }
+
+    .service-card:hover {
+      border-color: rgba(255, 0, 200, 0.25);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px -12px rgba(0,0,0,0.5);
+    }
+
+    .service-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .service-card .icon {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .service-card h3 {
+      font-weight: 500;
+      font-size: 1.1rem;
+      color: #f0f0ff;
+      margin-bottom: 0.5rem;
+    }
+
+    .service-card p {
+      color: #8a8a9a;
+      font-size: 0.9rem;
+    }
+
+    .service-card .price {
+      font-family: 'Space Mono', monospace;
+      color: #00d4ff;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+    }
+
+    /* ----- треки / портфолио ----- */
+    .tracks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .track-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(0, 200, 255, 0.08);
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+
+    .track-card:hover {
+      border-color: rgba(0, 200, 255, 0.3);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(0, 200, 255, 0.05);
+    }
+
+    .track-card .track-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .track-card .track-title {
+      font-weight: 500;
+      color: #f0f0ff;
+    }
+
+    .track-card .track-artist {
+      color: #8a8a9a;
+      font-size: 0.85rem;
+    }
+
+    .track-card .track-play {
+      color: #00d4ff;
+      font-size: 1.5rem;
+      transition: 0.3s;
+    }
+
+    .track-card:hover .track-play {
+      transform: scale(1.2);
+      color: #ff00c8;
+    }
+
+    .track-card .track-genre {
+      display: inline-block;
+      padding: 0.2rem 0.8rem;
+      background: rgba(255, 0, 200, 0.1);
+      border: 1px solid rgba(255, 0, 200, 0.15);
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #ff00c8;
+      margin-top: 0.8rem;
+      font-family: 'Space Mono', monospace;
+    }
+
+    /* ----- о студии ----- */
+    .about-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      margin-top: 2rem;
+    }
+
+    .about-layout .about-text p {
+      color: #8a8a9a;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+
+    .about-layout .about-image {
+      background: radial-gradient(ellipse at center, rgba(0, 200, 255, 0.05), transparent 70%);
+      border: 1px solid rgba(0, 200, 255, 0.08);
+      height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Mono', monospace;
+      color: #5a5a6a;
+      border-radius: 2px;
+    }
+
+    .about-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .stat-item {
+      background: rgba(255,255,255,0.02);
+      padding: 1.5rem;
+      border: 1px solid rgba(255, 0, 200, 0.06);
+      text-align: center;
+      border-radius: 2px;
+    }
+
+    .stat-item .number {
+      font-family: 'Space Mono', monospace;
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ff00c8, #00d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-item .label {
+      font-size: 0.7rem;
+      color: #6a6a7a;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    /* ----- контакты ----- */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      margin-top: 2rem;
+    }
+
+    .contact-info .item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.8rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .contact-info .item .icon {
+      font-size: 1.2rem;
+      width: 30px;
+      text-align: center;
+    }
+
+    .contact-info .item .label {
+      color: #6a6a7a;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .contact-info .item .value {
+      color: #e0e0e6;
+    }
+
+    .contact-form input, .contact-form textarea {
+      width: 100%;
+      padding: 0.9rem;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+      color: #e0e0e6;
+      font-family: 'Inter', sans-serif;
+      transition: 0.2s;
+      outline: none;
+      border-radius: 2px;
+    }
+
+    .contact-form input::placeholder, .contact-form textarea::placeholder {
+      color: #5a5a6a;
+    }
+
+    .contact-form input:focus, .contact-form textarea:focus {
+      border-color: rgba(255, 0, 200, 0.3);
+      background: rgba(255,255,255,0.04);
+    }
+
+    /* ----- футер ----- */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.04);
+      padding: 1.8rem 0;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #5a5a6a;
+      margin-top: auto;
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 1px;
+    }
+
+    footer .neon-text {
+      background: linear-gradient(135deg, #ff00c8, #00d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ----- адаптация ----- */
+    @media (max-width: 1024px) {
+      .hero {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      .hero-visual {
+        height: 250px;
+      }
+      .about-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .app-container {
+        padding: 0 1rem;
+      }
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
+      }
+      .nav-links {
+        gap: 1rem;
+        width: 100%;
+        justify-content: space-between;
+      }
+      .nav-links a {
+        font-size: 0.6rem;
+      }
+      .hero-text p {
+        max-width: 100%;
+      }
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+      .tracks-grid {
+        grid-template-columns: 1fr;
+      }
+      .about-stats {
+        grid-template-columns: 1fr;
+      }
+      .btn-outline {
+        margin-left: 0;
+        margin-top: 0.8rem;
+      }
+      .hero-visual .waveform {
+        height: 120px;
+        gap: 3px;
+      }
+      .waveform .bar {
+        width: 4px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-text h1 {
+        font-size: 2rem;
+      }
+      .hero-text p {
+        font-size: 1rem;
+      }
+      .nav-links {
+        gap: 0.5rem;
+      }
+      .nav-links a {
+        font-size: 0.55rem;
+        letter-spacing: 0.5px;
+      }
+      .logo {
+        font-size: 1.4rem;
+      }
+      .stat-item .number {
+        font-size: 1.5rem;
+      }
+      .waveform .bar {
+        width: 3px;
+      }
+      .hero-visual {
+        height: 180px;
+      }
+      .hero-visual .waveform {
+        height: 80px;
+        gap: 2px;
+      }
+      .waveform .bar:nth-child(1) { height: 30px; }
+      .waveform .bar:nth-child(2) { height: 60px; }
+      .waveform .bar:nth-child(3) { height: 40px; }
+      .waveform .bar:nth-child(4) { height: 90px; }
+      .waveform .bar:nth-child(5) { height: 70px; }
+      .waveform .bar:nth-child(6) { height: 100px; }
+      .waveform .bar:nth-child(7) { height: 80px; }
+      .waveform .bar:nth-child(8) { height: 50px; }
+      .waveform .bar:nth-child(9) { height: 35px; }
+      .waveform .bar:nth-child(10) { height: 65px; }
+      .waveform .bar:nth-child(11) { height: 95px; }
+      .waveform .bar:nth-child(12) { height: 45px; }
+      .waveform .bar:nth-child(13) { height: 55px; }
+      .waveform .bar:nth-child(14) { height: 85px; }
+      .waveform .bar:nth-child(15) { height: 25px; }
+      .waveform .bar:nth-child(16) { height: 75px; }
+      .waveform .bar:nth-child(17) { height: 42px; }
+      .waveform .bar:nth-child(18) { height: 62px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <div class="logo" onclick="switchPage('home')">NEON <span>WAVE</span></div>
+      <div class="nav-links" id="navLinks">
+        <a class="active-page" data-page="home">Главная</a>
+        <a data-page="services">Услуги</a>
+        <a data-page="tracks">Треки</a>
+        <a data-page="about">О студии</a>
+        <a data-page="contacts">Контакты</a>
+      </div>
+    </header>
+
+    <!-- СТРАНИЦА 1: ГЛАВНАЯ -->
+    <div id="home" class="page active">
+      <div class="hero">
+        <div class="hero-text">
+          <h1>звук <span class="neon">будущего</span><br><span class="neon-blue">сегодня</span></h1>
+          <p>Студия звукозаписи, где рождается новый саунд. Профессиональное оборудование, уникальный звук, творческая атмосфера.</p>
+          <div>
+            <a class="btn" data-nav="contacts">Записаться</a>
+            <a class="btn btn-outline" data-nav="tracks">Послушать</a>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="waveform">
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- СТРАНИЦА 2: УСЛУГИ -->
+    <div id="services" class="page">
+      <h2 style="font-weight:300; font-size:clamp(1.8rem, 4vw, 2.8rem); margin-bottom:0.5rem;">// услуги</h2>
+      <p style="color:#6a6a7a; margin-bottom:1rem;">Всё для создания качественного звука</p>
+      <div class="services-grid">
+        <div class="service-card">
+          <span class="icon">🎤</span>
+          <h3>Запись вокала</h3>
+          <p>Профессиональные микрофоны, звукоизоляция, опытные звукорежиссёры.</p>
+          <div class="price">от 3000 ₽/час</div>
+        </div>
+        <div class="service-card">
+          <span class="icon">🎹</span>
+          <h3>Запись инструментов</h3>
+          <p>Клавишные, гитары, барабаны — живые инструменты в студии.</p>
+          <div class="price">от 4000 ₽/час</div>
+        </div>
+        <div class="service-card">
+          <span class="icon">🎛️</span>
+          <h3>Сведение и мастеринг</h3>
+          <p>Профессиональная обработка звука до финального микса.</p>
+          <div class="price">от 8000 ₽/трек</div>
+        </div>
+        <div class="service-card">
+          <span class="icon">🎧</span>
+          <h3>Создание битов</h3>
+          <p>Оригинальные инструменталы в стилях trap, lo-fi, pop, rock.</p>
+          <div class="price">от 5000 ₽/бит</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- СТРАНИЦА 3: ТРЕКИ -->
+    <div id="tracks" class="page">
+      <h2 style="font-weight:300; font-size:clamp(1.8rem, 4vw, 2.8rem); margin-bottom:0.5rem;">// треки</h2>
+      <p style="color:#6a6a7a; margin-bottom:1rem;">Проекты, записанные в нашей студии</p>
+      <div class="tracks-grid">
+        <div class="track-card" onclick="alert('🎵 Воспроизведение трека (демо)')">
+          <div class="track-header">
+            <span class="track-title">Ночной город</span>
+            <span class="track-play">▶</span>
+          </div>
+          <div class="track-artist">Elena Wave</div>
+          <div class="track-genre">Synthwave</div>
+        </div>
+        <div class="track-card" onclick="alert('🎵 Воспроизведение трека (демо)')">
+          <div class="track-header">
+            <span class="track-title">Тени на стене</span>
+            <span class="track-play">▶</span>
+          </div>
+          <div class="track-artist">Deep Echo</div>
+          <div class="track-genre">Lo-fi / Chill</div>
+        </div>
+        <div class="track-card" onclick="alert('🎵 Воспроизведение трека (демо)')">
+          <div class="track-header">
+            <span class="track-title">Rave Machine</span>
+            <span class="track-play">▶</span>
+          </div>
+          <div class="track-artist">DJ Pulse</div>
+          <div class="track-genre">Electronic</div>
+        </div>
+        <div class="track-card" onclick="alert('🎵 Воспроизведение трека (демо)')">
+          <div class="track-header">
+            <span class="track-title">Стеклянный дождь</span>
+            <span class="track-play">▶</span>
+          </div>
+          <div class="track-artist">Nova &amp; Grey</div>
+          <div class="track-genre">Indie / Alternative</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- СТРАНИЦА 4: О СТУДИИ -->
+    <div id="about" class="page">
+      <h2 style="font-weight:300; font-size:clamp(1.8rem, 4vw, 2.8rem);">// о студии</h2>
+      <div class="about-layout">
+        <div class="about-text">
+          <p><strong style="color:#f0f0ff;">NEON WAVE</strong> — это пространство для музыкантов, которые хотят звучать по-новому. Мы объединили современное оборудование, акустический комфорт и творческую энергетику.</p>
+          <p>Наша команда — это звукорежиссёры с 10+ летним опытом работы с артистами разных жанров: от инди-рока до электронной музыки.</p>
+          <div class="about-stats">
+            <div class="stat-item">
+              <div class="number">150+</div>
+              <div class="label">записанных треков</div>
+            </div>
+            <div class="stat-item">
+              <div class="number">30+</div>
+              <div class="label">артистов</div>
+            </div>
+            <div class="stat-item">
+              <div class="number">5</div>
+              <div class="label">лет работы</div>
+            </div>
+          </div>
+        </div>
+        <div class="about-image">
+          <div style="text-align:center; color:#6a6a7a; font-family:'Space Mono'; font-size:0.8rem; letter-spacing:2px;">
+            🎚️<br>
+            [ студия звукозаписи ]
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- СТРАНИЦА 5: КОНТАКТЫ -->
+    <div id="contacts" class="page">
+      <h2 style="font-weight:300; font-size:clamp(1.8rem, 4vw, 2.8rem);">// контакты</h2>
+      <div class="contact-grid">
+        <div class="contact-info">
+          <div class="item">
+            <span class="icon">📍</span>
+            <div>
+              <div class="label">Адрес</div>
+              <div class="value">Москва, ул. Звуковая, 12</div>
+            </div>
+          </div>
+          <div class="item">
+            <span class="icon">📞</span>
+            <div>
+              <div class="label">Телефон</div>
+              <div class="value">+7 (999) 888-77-66</div>
+            </div>
+          </div>
+          <div class="item">
+            <span class="icon">✉️</span>
+            <div>
+              <div class="label">Email</div>
+              <div class="value">studio@neonwave.audio</div>
+            </div>
+          </div>
+          <div class="item">
+            <span class="icon">🕐</span>
+            <div>
+              <div class="label">Режим работы</div>
+              <div class="value">Ежедневно: 12:00 – 00:00</div>
+            </div>
+          </div>
+          <div class="item">
+            <span class="icon">🎧</span>
+            <div>
+              <div class="label">Соцсети</div>
+              <div class="value" style="color:#00d4ff;">@neonwave_studio</div>
+            </div>
+          </div>
+        </div>
+        <form class="contact-form" onsubmit="event.preventDefault(); alert('✅ Заявка отправлена! Мы свяжемся с вами.'); this.reset();">
+          <input type="text" placeholder="Ваше имя" required>
+          <input type="email" placeholder="Email" required>
+          <input type="tel" placeholder="Телефон">
+          <textarea rows="4" placeholder="Расскажите о вашем проекте..." required></textarea>
+          <button type="submit" class="btn" style="width:100%;">отправить заявку</button>
+        </form>
+      </div>
+    </div>
+
+    <footer>
+      <span>© 2025 <span class="neon-text">NEON WAVE</span> — студия звукозаписи</span>
+    </footer>
+  </div>
+
+  <script>
+    (function() {
+      const pages = document.querySelectorAll('.page');
+      const navLinks = document.querySelectorAll('.nav-links a');
+
+      function switchPage(pageId) {
+        pages.forEach(p => p.classList.remove('active'));
+        const activePage = document.getElementById(pageId);
+        if (activePage) {
+          activePage.classList.add('active');
+        }
+
+        navLinks.forEach(link => {
+          const linkPage = link.getAttribute('data-page');
+          if (linkPage === pageId) {
+            link.classList.add('active-page');
+          } else {
+            link.classList.remove('active-page');
+          }
+        });
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          const pageId = this.getAttribute('data-page');
+          if (pageId) {
+            e.preventDefault();
+            switchPage(pageId);
+            history.pushState(null, '', '#' + pageId);
+          }
+        });
+      });
+
+      document.body.addEventListener('click', function(e) {
+        const target = e.target.closest('[data-nav]');
+        if (target) {
+          const pageId = target.getAttribute('data-nav');
+          if (pageId) {
+            e.preventDefault();
+            switchPage(pageId);
+            history.pushState(null, '', '#' + pageId);
+          }
+        }
+      });
+
+      function handleInitialHash() {
+        const hash = window.location.hash.substring(1);
+        if (hash && document.getElementById(hash)) {
+          switchPage(hash);
+        } else {
+          switchPage('home');
+        }
+      }
+
+      window.addEventListener('load', handleInitialHash);
+      window.addEventListener('popstate', handleInitialHash);
+
+      window.switchPage = switchPage;
+    })();
+  </script>
+</body>
+</html>
